@@ -1,5 +1,3 @@
-console.log("Todo APP");
-
 showTodos();
 
 let addBtn = document.getElementById('addBtn');
@@ -23,6 +21,7 @@ function addTodo(e) {
     else {
         alert("It seems you didn't write anything?");
     }
+    addClass();
     showTodos();
 }
 
@@ -36,9 +35,14 @@ function showTodos() {
     }
     let html = "";
     todosObj.forEach((element, index) => {
-        html += ` <li id="li" class="unchecked">${element}<span id="${index}" onclick="deleteTodo(this.id)" class="close">&times;</span></li> `;
+        let classElement = localStorage.getItem("classElements");
+        if (classElement === null) {
+            classElementObj = [];
+        } else {
+            classElementObj = JSON.parse(classElement);
+        }
+        html += ` <li id=${index}  class=${classElementObj[index]}>${element}<span onclick="deleteTodo(this.id)" class="close">&times;</span></li> `;
     });
-
     let todoElement = document.getElementById('myUL');
     if (todosObj.length != 0) {
         todoElement.innerHTML = html;
@@ -51,25 +55,50 @@ function showTodos() {
 
 function deleteTodo(index) {
     let todos = localStorage.getItem("todos");
-    if (todos === null) {
-        todosObj = []
+    let classElement = localStorage.getItem("classElements");
+    if (todos === null || classElement === null) {
+        todosObj = [];
+        classElementObj = [];
     }
     else {
         todosObj = JSON.parse(todos);
+        classElementObj = JSON.parse(classElement);
+        classElementObj.splice(index, 1);
         todosObj.splice(index, 1);
         localStorage.setItem("todos", JSON.stringify(todosObj));
+        localStorage.setItem("classElements", JSON.stringify(classElementObj));
     }
     showTodos();
 }
 //Checked Todo
 let todoList = document.getElementById('myUL');
-todoList.addEventListener("click", (e) => {
-    if (e.target.className === "unchecked") {
-        e.target.className = "checked";
+todoList.addEventListener("click", (element) => {
+    if (element.target.className === 'unchecked') {
+        element.target.className = "checked";
+        let classElement = localStorage.getItem("classElements");
+        if (classElement === null) {
+            classElementObj = [];
+        } else {
+            classElementObj = JSON.parse(classElement);
+        }
+        classElementObj[element.target.id] = "checked";
+        localStorage.setItem("classElements", JSON.stringify(classElementObj));
+
     } else {
-        e.target.className = "unchecked";
+        element.target.className = 'unchecked';
+        let classElement = localStorage.getItem("classElements");
+        if (classElement === null) {
+            classElementObj = [];
+        } else {
+            classElementObj = JSON.parse(classElement);
+        }
+        classElementObj[element.target.id] = "unchecked";
+        localStorage.setItem("classElements", JSON.stringify(classElementObj));
     }
+
 });
+
+
 
 //filters
 function selectOption() {
@@ -102,4 +131,15 @@ function selectOption() {
             }
         });
     }
+}
+
+function addClass() {
+    let classElement = localStorage.getItem("classElements");
+    if (classElement === null) {
+        classElementObj = [];
+    } else {
+        classElementObj = JSON.parse(classElement);
+    }
+    classElementObj.push("unchecked");
+    localStorage.setItem("classElements", JSON.stringify(classElementObj));
 }
